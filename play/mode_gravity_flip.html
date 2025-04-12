@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Gravity Flip Mode</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #111; color: white; font-family: sans-serif; }
+    canvas { display: block; background: #222; }
+    #message { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 24px; }
+  </style>
+</head>
+<body>
+  <div id="message">Нажимай для смены гравитации</div>
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
+  <script>
+
+    const theme = localStorage.getItem("activeTheme");
+    if (theme) {
+      document.body.style.backgroundImage = "url('../images/backgrounds/" + theme + ".png')";
+      document.body.style.backgroundSize = "cover";
+    }
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const charName = localStorage.getItem("selectedCharacter") || "default.png";
+    let playerImg = new Image();
+    playerImg.src = "../images/player/" + charName;
+    player.img = playerImg;
+
+    let player = { x: 100, y: 300, w: 30, h: 30, vy: 0 };
+    let gravity = 1;
+    let flipped = false;
+    let groundY = 330;
+    let ceilingY = 40;
+
+    let frame = 0;
+    let obstacles = [];
+
+    // Создаём препятствия на обеих плоскостях
+    function generateObstacle(x, flip=false) {
+      obstacles.push({
+        x: x,
+        y: flip ? ceilingY + 20 : groundY,
+        w: 20,
+        h: 20,
+        flip: flip
+      });
+    }
+
+    for (let i = 0; i < 10; i++) {
+      generateObstacle(600 + i * 300, i % 2 === 0);
+    }
+
+    window.addEventListener("mousedown", () => {
+      flipped = !flipped;
+    });
+
+    function update() {
+      frame++;
+      let targetY = flipped ? ceilingY : groundY;
+      player.y += flipped ? -gravity * 5 : gravity * 5;
+
+      if ((flipped && player.y <= ceilingY) || (!flipped && player.y >= groundY)) {
+        player.y = targetY;
+      }
+
+      for (let obs of obstacles) {
+        obs.x -= 2;
+      }
+
+      // Проверка столкновений
+      for (let obs of obstacles) {
+        if (
+          player.x < obs.x + obs.w &&
+          player.x + player.w > obs.x &&
+          player.y < obs.y + obs.h &&
+          player.y + player.h > obs.y
+        ) {
+          document.getElementById("message").textContent = "Game Over!";
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Земля и потолок
+      ctx.fillStyle = "#444";
+      ctx.fillRect(0, groundY + player.h, canvas.width, 70);
+      ctx.fillRect(0, 0, canvas.width, ceilingY);
+
+      // игрок
+      if (player.img.complete) {
+        ctx.drawImage(player.img, player.x, player.y, player.w, player.h);
+      } else {
+        ctx.fillStyle = "#0ff";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+      }
+
+      // препятствия
+      for (let obs of obstacles) {
+        ctx.fillStyle = "#f00";
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+      }
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

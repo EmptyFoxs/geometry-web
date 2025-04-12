@@ -1,0 +1,14 @@
+<!DOCTYPE html><html><head><title>Game Modes</title></head><body>
+  <p><a href='character_select.html' style='color:#0f0;'>Выбрать персонажа</a></p><h1>Выбери режим</h1><ul><li><a href='mode_jump_challenge.html'>Прыжковый вызов</a></li><li><a href='mode_patience.html'>Режим терпения</a></li><li><a href='mode_music_generator.html'>Музыкальный генератор</a></li></ul>
+<script>
+function unlockAchievement(name, themeKey) {
+  const unlocked = JSON.parse(localStorage.getItem("unlockedThemes") || "[]");
+  if (!unlocked.includes(themeKey)) {
+    unlocked.push(themeKey);
+    localStorage.setItem("unlockedThemes", JSON.stringify(unlocked));
+    alert("Достижение разблокировано: " + name + "! Получен новый фон.");
+  }
+}
+</script>
+
+</body></html>

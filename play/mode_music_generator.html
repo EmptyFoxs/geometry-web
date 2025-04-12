@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Музыкальный Генератор</title>
+  <style>
+    body { margin: 0; background: #111; color: white; font-family: sans-serif; }
+    canvas { display: block; background: #222; margin-top: 10px; }
+    #message { padding: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div id="message">Загрузите музыку для генерации уровня:</div>
+  <input type="file" id="audioInput" accept="audio/*" style="display: block; margin: 0 auto;">
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
+  <script>
+
+    const theme = localStorage.getItem("activeTheme");
+    if (theme) {
+      document.body.style.backgroundImage = "url('../images/backgrounds/" + theme + ".png')";
+      document.body.style.backgroundSize = "cover";
+    }
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const audioInput = document.getElementById("audioInput");
+    const message = document.getElementById("message");
+
+    let audioContext, audioBufferSource, analyser, dataArray;
+    let player = { x: 100, y: 300, w: 30, h: 30, vy: 0, img: new Image() };
+    let gravity = 1, groundY = 330;
+    let obstacles = [], audioStarted = false, frame = 0;
+
+    // Спрайт игрока
+    const charName = localStorage.getItem("selectedCharacter") || "default.png";
+    player.img.src = "../images/player/" + charName;
+
+    // Музыка
+    audioInput.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const arrayBuffer = await file.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      audioBufferSource = audioContext.createBufferSource();
+      audioBufferSource.buffer = audioBuffer;
+
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+      source.start();
+      audioStarted = true;
+
+      message.textContent = "Музыка играет! Уровень создается по такту...";
+    };
+
+    function update() {
+      if (!audioStarted) return;
+
+      frame++;
+      if (player.y < groundY) {
+        player.vy += gravity;
+        player.y += player.vy;
+      } else {
+        player.y = groundY;
+        player.vy = 0;
+      }
+
+      analyser.getByteFrequencyData(dataArray);
+      const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
+
+      if (frame % 40 === 0 && volume > 100) {
+        obstacles.push({ x: 800, y: 310, w: 20, h: 20 });
+      }
+
+      for (let obs of obstacles) obs.x -= 2;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // земля
+      ctx.fillStyle = "#444";
+      ctx.fillRect(0, groundY + player.h, canvas.width, 70);
+
+      // игрок
+      if (player.img.complete) {
+        ctx.drawImage(player.img, player.x, player.y, player.w, player.h);
+      } else {
+        ctx.fillStyle = "#0f0";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+      }
+
+      // препятствия
+      for (let obs of obstacles) {
+        ctx.fillStyle = "#f00";
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+      }
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

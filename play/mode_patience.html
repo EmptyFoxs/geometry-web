@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Режим Терпения</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #111; color: white; font-family: sans-serif; }
+    canvas { display: block; background: #222; }
+    #message { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 24px; }
+  </style>
+</head>
+<body>
+  <div id="message">Не нажимай ничего...</div>
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
+  <script>
+
+    const theme = localStorage.getItem("activeTheme");
+    if (theme) {
+      document.body.style.backgroundImage = "url('../images/backgrounds/" + theme + ".png')";
+      document.body.style.backgroundSize = "cover";
+    }
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const charName = localStorage.getItem("selectedCharacter") || "default.png";
+    let playerImg = new Image();
+    playerImg.src = "../images/player/" + charName;
+    player.img = playerImg;
+
+    let player = { x: 100, y: 300, w: 30, h: 30, vy: 0, jumping: false };
+    let gravity = 1;
+    let groundY = 330;
+    let obstacles = [];
+    let frame = 0;
+    let gameOver = false;
+
+    // Генерация "фейковых" шипов, которые исчезают в последний момент
+    function generateObstacle(timeOffset) {
+      obstacles.push({
+        x: 800 + timeOffset,
+        y: 310,
+        w: 20,
+        h: 20,
+        fake: true,
+        disappearFrame: frame + (timeOffset / 2)
+      });
+    }
+
+    for (let i = 0; i < 10; i++) generateObstacle(i * 300 + 600);
+
+    // Нажал — провал
+    window.addEventListener("mousedown", () => {
+      if (!gameOver) {
+        gameOver = true;
+        obstacles.push({
+          x: player.x,
+          y: groundY,
+          w: 30,
+          h: 30,
+          fake: false,
+          deadly: true
+        });
+        document.getElementById("message").textContent = "Ты не сдержался! Game Over.";
+      }
+    });
+
+    function update() {
+      frame++;
+      if (gameOver) return;
+
+      player.y += player.vy;
+      if (player.y < groundY) {
+        player.vy += gravity;
+      } else {
+        player.y = groundY;
+        player.vy = 0;
+        player.jumping = false;
+      }
+
+      for (let obs of obstacles) {
+        obs.x -= 2;
+        if (obs.fake && frame > obs.disappearFrame) obs.y = 5000; // исчезает
+      }
+
+      // Проверка столкновений
+      for (let obs of obstacles) {
+        if (
+          player.x < obs.x + obs.w &&
+          player.x + player.w > obs.x &&
+          player.y < obs.y + obs.h &&
+          player.y + player.h > obs.y
+        ) {
+          if (obs.deadly || !obs.fake) {
+            gameOver = true;
+            document.getElementById("message").textContent = "Умер! Нельзя было нажимать.";
+          }
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // земля
+      ctx.fillStyle = "#444";
+      ctx.fillRect(0, groundY + player.h, canvas.width, 70);
+
+      // игрок
+      if (player.img.complete) {
+        ctx.drawImage(player.img, player.x, player.y, player.w, player.h);
+      } else {
+        ctx.fillStyle = "#0f0";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+      }
+
+      // препятствия
+      for (let obs of obstacles) {
+        ctx.fillStyle = obs.fake ? "#f00" : "#ff0";
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+      }
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

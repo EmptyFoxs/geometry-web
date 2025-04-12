@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Кампания - Уровень 3</title>
+  <style>
+    body { margin: 0; background: #111; color: white; font-family: sans-serif; }
+    canvas { display: block; background: #222; margin-top: 10px; }
+    #message { padding: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div id="message">Кампания: Уровень 3 — загрузка...</div>
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
+  <audio id="bgMusic" src="../data/music/track3.mp3" autoplay loop></audio>
+  <script>
+
+    const theme = localStorage.getItem("activeTheme");
+    if (theme) {
+      document.body.style.backgroundImage = "url('../images/backgrounds/" + theme + ".png')";
+      document.body.style.backgroundSize = "cover";
+    }
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const player = { x: 100, y: 300, w: 30, h: 30, vy: 0, img: new Image() };
+    const gravity = 1, groundY = 330;
+    const charName = localStorage.getItem("selectedCharacter") || "default.png";
+    player.img.src = "../images/player/" + charName;
+    let frame = 0;
+
+    function update() {
+      frame++;
+      if (player.y < groundY) {
+        player.vy += gravity;
+        player.y += player.vy;
+      } else {
+        player.y = groundY;
+        player.vy = 0;
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#444";
+      ctx.fillRect(0, groundY + player.h, canvas.width, 70);
+      if (player.img.complete) {
+        ctx.drawImage(player.img, player.x, player.y, player.w, player.h);
+      } else {
+        ctx.fillStyle = "#0f0";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+      }
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+
+    // Обновление прогресса после победы
+    setTimeout(() => {
+      let progress = parseInt(localStorage.getItem("campaignProgress") || "1");
+      if (progress < 4) {
+        localStorage.setItem("campaignProgress", 4);
+      }
+      document.getElementById("message").textContent = "Уровень пройден!";
+    }, 5000);
+  </script>
+</body>
+</html>

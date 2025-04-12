@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор оформления</title>
+  <style>
+    body { background: #111; color: white; font-family: sans-serif; }
+    h1 { text-align: center; }
+    .grid {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
+      padding: 20px;
+    }
+    .bg {
+      border: 3px solid #555; cursor: pointer; transition: 0.2s;
+    }
+    .bg:hover { border-color: #0f0; }
+    img { width: 200px; height: 100px; display: block; }
+    p { text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Выберите фон (если разблокирован)</h1>
+  <div class="grid">
+
+    <div class="bg" onclick="selectBackground('zen_forest')">
+      <img src='../images/backgrounds/zen_forest.png'><p>Zen Forest</p>
+    </div>
+    
+    <div class="bg" onclick="selectBackground('digital_sky')">
+      <img src='../images/backgrounds/digital_sky.png'><p>Digital Sky</p>
+    </div>
+    
+    <div class="bg" onclick="selectBackground('synth_galaxy')">
+      <img src='../images/backgrounds/synth_galaxy.png'><p>Synth Galaxy</p>
+    </div>
+    
+    <div class="bg" onclick="selectBackground('glitch_temple')">
+      <img src='../images/backgrounds/glitch_temple.png'><p>Glitch Temple</p>
+    </div>
+    
+    <div class="bg" onclick="selectBackground('neon_inversion')">
+      <img src='../images/backgrounds/neon_inversion.png'><p>Neon Inversion</p>
+    </div>
+    
+    <div class="bg" onclick="selectBackground('victory_realm')">
+      <img src='../images/backgrounds/victory_realm.png'><p>Victory Realm</p>
+    </div>
+    
+  </div>
+  <script>
+    const unlocked = JSON.parse(localStorage.getItem("unlockedThemes") || "[]");
+
+    function selectBackground(name) {
+      if (!unlocked.includes(name)) {
+        alert("Этот фон пока не разблокирован!");
+        return;
+      }
+      localStorage.setItem("activeTheme", name);
+      alert("Фон установлен: " + name);
+    }
+  </script>
+</body>
+</html>

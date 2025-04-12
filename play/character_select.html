@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор персонажа</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: white; text-align: center; }
+    .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+    .char { border: 2px solid #444; padding: 10px; cursor: pointer; background: #222; }
+    .char:hover { border-color: #0f0; }
+    img { width: 60px; height: 60px; }
+  </style>
+</head>
+<body>
+  <h1>Выбери персонажа</h1>
+  <div class="grid">
+
+    <div class="char" onclick="selectCharacter('character1.png')">
+      <img src='../images/player/character1.png' alt='character1.png'><br>character1.png
+    </div>
+    
+    <div class="char" onclick="selectCharacter('character2.png')">
+      <img src='../images/player/character2.png' alt='character2.png'><br>character2.png
+    </div>
+    
+    <div class="char" onclick="selectCharacter('character3.png')">
+      <img src='../images/player/character3.png' alt='character3.png'><br>character3.png
+    </div>
+    
+    <div class="char" onclick="selectCharacter('character4.png')">
+      <img src='../images/player/character4.png' alt='character4.png'><br>character4.png
+    </div>
+    
+    <div class="char" onclick="selectCharacter('character5.png')">
+      <img src='../images/player/character5.png' alt='character5.png'><br>character5.png
+    </div>
+    
+  </div>
+  <script>
+    function selectCharacter(name) {
+      localStorage.setItem('selectedCharacter', name);
+      alert('Выбран: ' + name);
+      window.location.href = 'menu.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Кампания</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background: #111; color: white; font-family: sans-serif; margin: 0; }
+    h1 { text-align: center; margin-top: 20px; }
+    .map {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      align-items: center; margin: 20px; gap: 10px;
+    }
+    .level {
+      width: 60px; height: 60px;
+      border-radius: 50%; border: 2px solid #fff;
+      background: #333; display: flex; align-items: center;
+      justify-content: center; font-size: 16px;
+      cursor: pointer; transition: 0.2s;
+    }
+    .level.locked { border-color: #555; background: #222; color: #555; cursor: not-allowed; }
+    .level.completed { border-color: #0f0; background: #060; }
+  </style>
+</head>
+<body>
+  <h1>Кампания: Выбери уровень</h1>
+  <div class="map">
+    <div class='level locked' onclick='enterLevel(1)'>1</div>
+<div class='level locked' onclick='enterLevel(2)'>2</div>
+<div class='level locked' onclick='enterLevel(3)'>3</div>
+<div class='level locked' onclick='enterLevel(4)'>4</div>
+<div class='level locked' onclick='enterLevel(5)'>5</div>
+<div class='level locked' onclick='enterLevel(6)'>6</div>
+<div class='level locked' onclick='enterLevel(7)'>7</div>
+<div class='level locked' onclick='enterLevel(8)'>8</div>
+<div class='level locked' onclick='enterLevel(9)'>9</div>
+<div class='level locked' onclick='enterLevel(10)'>10</div>
+<div class='level locked' onclick='enterLevel(11)'>11</div>
+<div class='level locked' onclick='enterLevel(12)'>12</div>
+<div class='level locked' onclick='enterLevel(13)'>13</div>
+<div class='level locked' onclick='enterLevel(14)'>14</div>
+<div class='level locked' onclick='enterLevel(15)'>15</div>
+<div class='level locked' onclick='enterLevel(16)'>16</div>
+<div class='level locked' onclick='enterLevel(17)'>17</div>
+<div class='level locked' onclick='enterLevel(18)'>18</div>
+<div class='level locked' onclick='enterLevel(19)'>19</div>
+<div class='level locked' onclick='enterLevel(20)'>20</div>
+
+  </div>
+
+  <script>
+    let progress = parseInt(localStorage.getItem("campaignProgress") || "1");
+
+    function enterLevel(level) {
+      if (level > progress) return alert("Уровень пока закрыт!");
+      window.location.href = "campaign_level" + level + ".html";
+    }
+
+    document.querySelectorAll('.level').forEach((el, i) => {
+      let lvl = i + 1;
+      if (lvl < progress) el.classList.add("completed");
+      if (lvl > progress) el.classList.add("locked");
+    });
+  </script>
+</body>
+</html>
